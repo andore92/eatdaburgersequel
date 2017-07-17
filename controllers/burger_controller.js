@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
-var burger = require('../models/burgers.js');
+var db = require('../models');
 
 router.get('/', function (req, res) {
   res.redirect('/index');
 });
 
 router.get('/index', function (req, res) {
-  burger.selectAll(function(data) {
+  db.burgers.findAll({}).then(function(data){
     var burgersObj = { 
       burgers: data 
     };
@@ -16,14 +16,22 @@ router.get('/index', function (req, res) {
 });
 
 router.post('/burger/create', function (req, res) {
-  burger.insertOne(req.body.burger_name, function() {
+  db.burgers.create({
+    burger_name: req.body.burger_name
+  }).then(function(data){
     res.redirect('/index');
   });
 });
 
 
 router.post('/burger/eat/:id', function (req, res) {
-  burger.updateOne(req.params.id, function() {
+  db.burgers.update({
+    devoured: 1,
+    burger_id: req.params.id
+  },
+  {
+    where: {id: req.params.id}
+  }).then(function(data){
     res.redirect('/index');
   });
 });
